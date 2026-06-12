@@ -1294,7 +1294,7 @@ const handleMpesaPayment =
 
       const response = await fetch(
 
-        "http://localhost:5000/stkpush",
+        "https://nati-stores-backend.onrender.com/stkpush",
 
         {
 
