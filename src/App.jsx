@@ -454,6 +454,17 @@ const [mpesaPhone, setMpesaPhone] =
       : [];
 
   });
+  const [featuredDeal] = useState({
+  title: "🔥 Weekend Sale",
+  description: "Get 15% OFF on all Football Boots",
+  code: "NATI15"
+  })
+  const [timeLeft, setTimeLeft] = useState({
+  days: 0,
+  hours: 0,
+  minutes: 0,
+  seconds: 0,
+})
   const resetForms = () => {
 
   setCustomerName("");
@@ -599,6 +610,61 @@ useEffect(() => {
   );
 
 }, [recentlyViewed]);
+useEffect(() => {
+
+  const saleEndDate =
+  new Date("2026-07-01T23:59:59")
+  const timer = setInterval(() => {
+
+    const now = new Date()
+
+    const difference =
+      saleEndDate - now
+
+    if (difference <= 0) {
+
+      clearInterval(timer)
+
+      return
+
+    }
+
+    const days = Math.floor(
+      difference /
+      (1000 * 60 * 60 * 24)
+    )
+
+    const hours = Math.floor(
+      (difference %
+        (1000 * 60 * 60 * 24)) /
+      (1000 * 60 * 60)
+    )
+
+    const minutes = Math.floor(
+      (difference %
+        (1000 * 60 * 60)) /
+      (1000 * 60)
+    )
+
+    const seconds = Math.floor(
+      (difference %
+        (1000 * 60)) /
+      1000
+    )
+
+    setTimeLeft({
+      days,
+      hours,
+      minutes,
+      seconds,
+    })
+
+  }, 1000)
+
+  return () =>
+    clearInterval(timer)
+
+  }, [])
 
 const filteredProducts =
   products.flatMap((product) =>
@@ -2119,6 +2185,86 @@ if (page === "portfolio") {
 </div>
         </div>
       </header>
+      <div
+  className="
+    bg-red-600
+    text-white
+    text-center
+    p-4
+    font-bold
+  "
+>
+  <div>{featuredDeal.title}</div>
+
+  <div className="text-sm">
+    {featuredDeal.description}
+  </div>
+
+  <div className="mt-2">
+    Code: {featuredDeal.code}
+  </div>
+  <div
+  className="
+    flex
+    justify-center
+    gap-4
+    mt-4
+    flex-wrap
+  "
+>
+
+  <div className="bg-black px-4 py-2 rounded-xl">
+    {timeLeft.days}
+    <div className="text-xs">
+      Days
+    </div>
+  </div>
+
+  <div className="bg-black px-4 py-2 rounded-xl">
+    {timeLeft.hours}
+    <div className="text-xs">
+      Hours
+    </div>
+  </div>
+
+  <div className="bg-black px-4 py-2 rounded-xl">
+    {timeLeft.minutes}
+    <div className="text-xs">
+      Minutes
+    </div>
+  </div>
+
+  <div className="bg-black px-4 py-2 rounded-xl">
+    {timeLeft.seconds}
+    <div className="text-xs">
+      Seconds
+    </div>
+  </div>
+
+</div>
+</div>
+<button
+  onClick={() => {
+
+    document
+      .getElementById("products")
+      ?.scrollIntoView({
+        behavior: "smooth"
+      })
+
+  }}
+  className="
+    mt-3
+    bg-white
+    text-red-600
+    px-5
+    py-2
+    rounded-xl
+    font-bold
+  "
+>
+  Shop Now
+</button>
       {mobileMenuOpen && (
 
   <div className="bg-zinc-900 p-6 md:hidden">
