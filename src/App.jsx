@@ -408,6 +408,39 @@ const [mpesaPhone, setMpesaPhone] =
 
   );
   const [wishlistItems, setWishlistItems] = useState([]);
+  const [reviews, setReviews] = useState([
+  {
+    name: "Brian",
+    rating: 5,
+    comment:
+      "Excellent quality boots. Delivery was fast."
+  },
+
+  {
+    name: "Kevin",
+    rating: 5,
+    comment:
+      "The ThunderStrike trainers are very comfortable."
+  },
+
+  {
+    name: "James",
+    rating: 4,
+    comment:
+      "Great customer service and easy WhatsApp ordering."
+  }
+]);
+const [showReviewModal, setShowReviewModal] =
+  useState(false);
+
+const [reviewName, setReviewName] =
+  useState("");
+
+const [reviewRating, setReviewRating] =
+  useState(5);
+
+const [reviewComment, setReviewComment] =
+  useState("");
   const resetForms = () => {
 
   setCustomerName("");
@@ -455,7 +488,40 @@ const removeFromWishlist = (productName) => {
   );
 
 };
+  const submitReview = () => {
 
+  if (
+    !reviewName ||
+    !reviewComment
+  ) {
+
+    alert(
+      "Please fill all fields."
+    );
+
+    return;
+  }
+
+  setReviews([
+    {
+      name: reviewName,
+      rating: reviewRating,
+      comment: reviewComment
+    },
+
+    ...reviews
+  ]);
+
+  setReviewName("");
+  setReviewRating(5);
+  setReviewComment("");
+
+  setShowReviewModal(false);
+
+  alert(
+    "Review submitted successfully."
+  );
+};
   const subtotal = cartItems.reduce(
   (total, item) =>
     total + (Number(item.price) || 0),
@@ -1485,6 +1551,7 @@ Please send me a quotation.`;
 
   setShowQuoteModal(false);
 };
+
 if (page === "wishlist") {
 
   return (
@@ -1638,6 +1705,77 @@ if (page === "wishlist") {
         </div>
 
       )}
+
+    </div>
+
+  );
+
+}
+if (page === "portfolio") {
+
+  return (
+
+    <div className="min-h-screen bg-black text-white p-6">
+
+      <button
+        onClick={() => setPage("home")}
+        className="
+          bg-zinc-800
+          px-4
+          py-2
+          rounded-xl
+          mb-6
+        "
+      >
+        ← Back Home
+      </button>
+
+      <h1 className="text-4xl font-bold mb-8">
+        NATI STORES Portfolio
+      </h1>
+
+      <div className="grid md:grid-cols-3 gap-6">
+
+        {products.flatMap(product =>
+          product.variants.map((item,index) => (
+
+            <div
+              key={index}
+              className="
+                bg-zinc-900
+                rounded-2xl
+                overflow-hidden
+              "
+            >
+
+              <img
+                src={item.image}
+                alt={item.name}
+                className="
+                  w-full
+                  h-64
+                  object-cover
+                "
+              />
+
+              <div className="p-4">
+
+                <h3 className="font-bold">
+                  {item.name}
+                </h3>
+
+                <p className="text-red-500 mt-2">
+                  KES {item.price}
+                </p>
+
+              </div>
+
+            </div>
+
+          ))
+        )}
+
+      </div>
 
     </div>
 
@@ -1934,7 +2072,111 @@ if (page === "wishlist") {
 >
   Request Quote
 </button>
+{showReviewModal && (
 
+  <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+
+    <div className="bg-white p-6 rounded-2xl w-[90%] max-w-lg">
+
+      <h2 className="text-2xl font-bold mb-4 text-black">
+        Leave a Review
+      </h2>
+
+      <input
+        type="text"
+        placeholder="Your Name"
+        value={reviewName}
+        onChange={(e) =>
+          setReviewName(e.target.value)
+        }
+        className="
+          w-full
+          border
+          p-3
+          mb-3
+          rounded-lg
+          text-black
+        "
+      />
+
+      <select
+        value={reviewRating}
+        onChange={(e) =>
+          setReviewRating(
+            Number(e.target.value)
+          )
+        }
+        className="
+          w-full
+          border
+          p-3
+          mb-3
+          rounded-lg
+          text-black
+        "
+      >
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="1">⭐</option>
+      </select>
+
+      <textarea
+        placeholder="Your Review"
+        value={reviewComment}
+        onChange={(e) =>
+          setReviewComment(
+            e.target.value
+          )
+        }
+        className="
+          w-full
+          border
+          p-3
+          mb-4
+          rounded-lg
+          text-black
+        "
+      />
+
+      <div className="flex gap-3">
+
+        <button
+          onClick={() =>
+            setShowReviewModal(false)
+          }
+          className="
+            flex-1
+            bg-gray-500
+            text-white
+            py-3
+            rounded-lg
+          "
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={submitReview}
+          className="
+            flex-1
+            bg-green-500
+            text-white
+            py-3
+            rounded-lg
+          "
+        >
+          Submit
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
       <section id="products" className="p-6">
         <h2 className="text-2xl font-bold mb-4">
           Featured Products
@@ -2317,13 +2559,73 @@ onClick={() => {
           ))}
         </div>
       </section>
+      <section className="p-6">
 
+  <h2 className="text-3xl font-bold mb-6">
+    ⭐ Customer Reviews
+  </h2>
+  <button
+  onClick={() =>
+    setShowReviewModal(true)
+  }
+  className="
+    bg-yellow-500
+    px-5
+    py-3
+    rounded-xl
+    mb-6
+    text-black
+    font-bold
+  "
+>
+  Leave a Review
+</button>
+  <div className="grid md:grid-cols-3 gap-6">
+
+    {reviews.map((review,index) => (
+
+      <div
+        key={index}
+        className="
+          bg-zinc-900
+          rounded-2xl
+          p-5
+        "
+      >
+
+        <div className="text-yellow-400 text-xl mb-3">
+
+          {"⭐".repeat(review.rating)}
+
+        </div>
+
+        <p className="text-zinc-300">
+          "{review.comment}"
+        </p>
+
+        <p className="mt-4 font-bold">
+          — {review.name}
+        </p>
+
+      </div>
+
+    ))}
+
+  </div>
+
+</section>
       <footer className="fixed bottom-0 w-full bg-zinc-950 border-t border-zinc-800 flex justify-around p-4">
         <div
   className="cursor-pointer"
   onClick={() => setPage("home")}
 >
   🏠
+</div>
+<div
+  className="cursor-pointer"
+  onClick={() => setPage("portfolio")}
+>
+  📸 Portfolio
 </div>
         <span>📦</span>
         <div
