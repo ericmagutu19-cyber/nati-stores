@@ -429,18 +429,31 @@ const [mpesaPhone, setMpesaPhone] =
     comment:
       "Great customer service and easy WhatsApp ordering."
   }
-]);
-const [showReviewModal, setShowReviewModal] =
+  ]);
+  const [showReviewModal, setShowReviewModal] =
   useState(false);
 
-const [reviewName, setReviewName] =
+  const [reviewName, setReviewName] =
   useState("");
 
-const [reviewRating, setReviewRating] =
+  const [reviewRating, setReviewRating] =
   useState(5);
 
-const [reviewComment, setReviewComment] =
+  const [reviewComment, setReviewComment] =
   useState("");
+  const [recentlyViewed, setRecentlyViewed] =
+  useState(() => {
+
+    const saved =
+      localStorage.getItem(
+        "recentlyViewed"
+      );
+
+    return saved
+      ? JSON.parse(saved)
+      : [];
+
+  });
   const resetForms = () => {
 
   setCustomerName("");
@@ -522,6 +535,18 @@ const removeFromWishlist = (productName) => {
     "Review submitted successfully."
   );
 };
+  const addToRecentlyViewed = (product) => {
+
+  const filtered = recentlyViewed.filter(
+    item => item.name !== product.name
+  );
+
+  setRecentlyViewed([
+    product,
+    ...filtered
+  ].slice(0, 6));
+
+  };
   const subtotal = cartItems.reduce(
   (total, item) =>
     total + (Number(item.price) || 0),
@@ -562,6 +587,18 @@ useEffect(() => {
   );
 
 }, [wishlistItems]);
+useEffect(() => {
+
+  localStorage.setItem(
+    "recentlyViewed",
+
+    JSON.stringify(
+      recentlyViewed
+    )
+
+  );
+
+}, [recentlyViewed]);
 
 const filteredProducts =
   products.flatMap((product) =>
@@ -732,6 +769,14 @@ if (page === "profile") {
   );
 }
   if (page === "product" && selectedProduct) {
+    const relatedProducts = products.filter(
+    (product) =>
+      product.category ===
+        selectedProduct.category &&
+      product.id !==
+        selectedProduct.id
+  );
+
   return (
     <div className="min-h-screen bg-black text-white p-6">
 
@@ -777,9 +822,13 @@ if (page === "profile") {
 
         alt=""
 
-        onClick={() =>
-          setActiveVariant(variant)
-        }
+        onClick={() => {
+
+  setActiveVariant(variant)
+
+  addToRecentlyViewed(variant)
+
+}}
 
         className="
           w-24
@@ -849,8 +898,81 @@ if (page === "profile") {
   {size}
 </button>
               ))}
+              {/* Related {selectedProduct.category} */}
+
+<div className="mt-16">
+
+  <h2 className="text-3xl font-bold mb-6">
+    Related {selectedProduct.category}
+  </h2>
+
+  <div className="grid md:grid-cols-3 gap-6">
+
+    {relatedProducts.map((product) => (
+
+      <div
+        key={product.id}
+        className="
+          bg-zinc-900
+          rounded-2xl
+          overflow-hidden
+          cursor-pointer
+          hover:scale-105
+          transition
+        "
+        onClick={() => {
+
+          setSelectedProduct(product);
+
+          setActiveVariant(
+          product.variants[0]
+        );
+           addToRecentlyViewed(
+           product.variants[0]
+          );
+
+          setSelectedSize(null);
+
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+          });
+
+        }}
+      >
+
+        <img
+          src={product.variants[0].image}
+          alt={product.variants[0].name}
+          className="
+            w-full
+            h-48
+            object-cover
+          "
+        />
+
+        <div className="p-4">
+
+          <h3 className="font-bold">
+            {product.variants[0].name}
+          </h3>
+
+          <p className="text-red-500 mt-2">
+            KES {product.variants[0].price}
+          </p>
+
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+
+</div>
             </div>
           </div>
+  
   <button
   onClick={() => {
 
@@ -2177,6 +2299,78 @@ if (page === "portfolio") {
   </div>
 
 )}
+  <section className="p-6">
+
+  <h2 className="text-3xl font-bold mb-6">
+    Recently Viewed
+  </h2>
+
+  <div className="grid md:grid-cols-3 gap-6">
+
+    {recentlyViewed.map((item) => (
+
+      <div
+        key={item.name}
+        className="
+          bg-zinc-900
+          rounded-2xl
+          overflow-hidden
+          cursor-pointer
+        "
+        onClick={() => {
+
+          const parentProduct =
+            products.find(
+              p =>
+                p.variants.some(
+                  v =>
+                    v.name === item.name
+                )
+            );
+
+          setSelectedProduct(
+            parentProduct
+          );
+
+          setActiveVariant(item);
+
+          setPage("product");
+
+        }}
+      >
+
+        <img
+          src={item.image}
+          alt={item.name}
+          className="
+            w-full
+            h-48
+            object-cover
+          "
+        />
+
+        <div className="p-4">
+
+          <h3 className="font-bold">
+            {item.name}
+          </h3>
+
+          <p className="text-red-500">
+            KES {
+              Number(item.price)
+                .toLocaleString()
+            }
+          </p>
+
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+
+  </section>
       <section id="products" className="p-6">
         <h2 className="text-2xl font-bold mb-4">
           Featured Products
@@ -2430,6 +2624,9 @@ if (page === "portfolio") {
 setActiveVariant(
   product.variants?.[0]
 );
+addToRecentlyViewed(
+    product.variants[0]
+  );
 
 setPage("product");
   }}
