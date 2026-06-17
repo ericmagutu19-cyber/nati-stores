@@ -365,8 +365,8 @@ const products = [
 
 ];
 function App() {
-  const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
+  const cartCount = cartItems.length;
   const [page, setPage] = useState("home");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImage, setActiveImage] = useState(null);
@@ -382,7 +382,14 @@ function App() {
   const [ additionalNotes, setAdditionalNotes,] = useState("");
   const [showChatPopup, setShowChatPopup] = useState(false);
   const searchInputRef = useRef(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+
+const [quoteName, setQuoteName] = useState("");
+const [quotePhone, setQuotePhone] = useState("");
+const [quoteProduct, setQuoteProduct] = useState("");
+const [quoteQuantity, setQuoteQuantity] = useState("");
+const [quoteDeadline, setQuoteDeadline] = useState("");
+const [quoteNotes, setQuoteNotes] = useState("");
   const [showMpesaModal, setShowMpesaModal] =
   useState(false);
 
@@ -400,6 +407,55 @@ const [mpesaPhone, setMpesaPhone] =
         ).matches
 
   );
+  const [wishlistItems, setWishlistItems] = useState([]);
+  const resetForms = () => {
+
+  setCustomerName("");
+  setCustomerPhone("");
+  setDeliveryLocation("");
+  setAdditionalNotes("");
+
+  setActiveVariant(null);
+
+  setQuoteName("");
+  setQuotePhone("");
+  setQuoteProduct("");
+  setQuoteQuantity("");
+  setQuoteDeadline("");
+  setQuoteNotes("");
+  setSelectedSize(null);
+  setSelectedSizes({});
+
+};
+const addToWishlist = (product) => {
+
+  const exists = wishlistItems.some(
+    item =>
+      item.name === product.name
+  );
+
+  if (exists) {
+    alert("This item is already in your wishlist ❤️");
+    return;
+  }
+
+  setWishlistItems([
+    ...wishlistItems,
+    product
+  ]);
+
+  alert("Added to wishlist ❤️");
+};
+const removeFromWishlist = (productName) => {
+
+  setWishlistItems(
+    wishlistItems.filter(
+      item => item.name !== productName
+    )
+  );
+
+};
+
   const subtotal = cartItems.reduce(
   (total, item) =>
     total + (Number(item.price) || 0),
@@ -432,6 +488,15 @@ useEffect(() => {
   );
 
 }, [darkMode]);
+useEffect(() => {
+
+  localStorage.setItem(
+    "wishlistItems",
+    JSON.stringify(wishlistItems)
+  );
+
+}, [wishlistItems]);
+
 const filteredProducts =
   products.flatMap((product) =>
 
@@ -443,7 +508,7 @@ const filteredProducts =
           ?.toLowerCase()
 
           .includes(
-            searchQuery.toLowerCase()
+            searchTerm.toLowerCase()
           )
       )
 
@@ -530,7 +595,7 @@ const filteredProducts =
       );
 
       setCartItems(updatedCart);
-      setCartCount(updatedCart.length);
+      
     }}
   >
     Remove
@@ -720,8 +785,29 @@ if (page === "profile") {
               ))}
             </div>
           </div>
+  <button
+  onClick={() => {
 
-          <button
+    addToWishlist(
+      activeVariant ||
+      selectedProduct.variants[0]
+    );
+
+  }}
+  className="
+    w-full
+    bg-pink-600
+    hover:bg-pink-700
+    text-white
+    py-3
+    rounded-xl
+    mb-2
+    transition
+  "
+>
+  ❤️ Add to Wishlist
+</button>          
+<button
             className="w-full bg-red-600 py-4 rounded-2xl text-xl font-bold mt-8"
   onClick={() => {
 
@@ -748,8 +834,6 @@ if (page === "profile") {
       selectedSize,
     },
   ]);
-
-  setCartCount(cartCount + 1);
 
   alert("Added to cart successfully.");
 
@@ -813,7 +897,6 @@ if (page === "profile") {
 
   setCartItems([checkoutItem]);
 
-  setCartCount(1);
 
   setPage("checkout");
 
@@ -1129,6 +1212,18 @@ if (page === "checkout") {
       "_blank"
     );
 
+    setTimeout(() => {
+
+  resetForms();
+
+  setCartItems([]);
+
+  setSelectedSize(null);
+
+  setSelectedSizes({});
+
+}, 300);
+
   }}
 
   className="
@@ -1257,6 +1352,7 @@ if (page === "checkout") {
             handleMpesaPayment(
             mpesaPhone
             );
+            
           }}
 
           className="
@@ -1324,7 +1420,13 @@ const handleMpesaPayment =
       alert(
         "M-Pesa prompt sent to your phone."
       );
+      resetForms();
 
+      setCartItems([]);
+
+      setSelectedSize(null);
+
+      setSelectedSizes({});
     }
 
     catch (error) {
@@ -1336,8 +1438,199 @@ const handleMpesaPayment =
     }
 
 };
+const handleQuoteRequest = () => {
 
+  if (
+    !quoteName ||
+    !quotePhone ||
+    !quoteProduct
+  ) {
+    alert("Please fill the required fields.");
+    return;
+  }
 
+  const message = `QUOTE REQUEST
+
+Name: ${quoteName}
+Phone: ${quotePhone}
+
+Product Type: ${quoteProduct}
+Quantity: ${quoteQuantity}
+
+Deadline: ${quoteDeadline}
+
+Notes:
+${quoteNotes}
+
+Please send me a quotation.`;
+
+  window.open(
+    `https://wa.me/254101709129?text=${encodeURIComponent(message)}`,
+    "_blank"
+  );
+  resetForms();
+
+  setShowQuoteModal(false);
+};
+if (page === "wishlist") {
+
+  return (
+
+    <div
+  className="
+    min-h-screen
+    bg-gradient-to-b
+    from-black
+    via-zinc-900
+    to-black
+    text-white
+    p-6
+  "
+>
+
+      <h1 className="text-3xl font-bold mb-6">
+        My Wishlist ❤️
+      </h1>
+      <button
+  onClick={() => setPage("home")}
+  className="
+    mb-6
+    px-5
+    py-2
+    rounded-xl
+    bg-zinc-800
+    text-white
+    hover:bg-zinc-700
+    transition
+  "
+>
+  ← Back to Home
+</button>
+
+      {wishlistItems.length === 0 ? (
+
+        <p>
+          Your wishlist is empty.
+        </p>
+
+      ) : (
+
+        <div className="grid gap-4">
+
+          {wishlistItems.map((item) => (
+
+            <div
+  key={item.name}
+  className="
+    bg-zinc-900
+    border
+    border-zinc-700
+    rounded-2xl
+    p-4
+    shadow-lg
+  "
+>
+
+              <img
+                src={item.image}
+                alt={item.name}
+                className="
+                  w-full
+                  h-48
+                  object-cover
+                  rounded-lg
+                "
+              />
+
+              <h3 className="font-bold mt-3">
+                {item.name}
+              </h3>
+
+              <p>
+                KES {item.price}
+              </p>
+              <button
+  onClick={() => {
+
+    const parentProduct = products.find(
+      p =>
+        p.variants.some(
+          v => v.name === item.name
+        )
+    );
+
+    setSelectedProduct(parentProduct);
+
+    setActiveVariant(item);
+
+    setPage("product");
+
+  }}
+  className="
+    bg-blue-600
+    text-white
+    px-4
+    py-2
+    rounded-lg
+    mt-3
+    mr-2
+  "
+>
+  View Product
+</button>
+<button
+  onClick={() => {
+
+    setCartItems([
+      ...cartItems,
+      item
+    ]);
+
+    removeFromWishlist(item.name);
+
+  }}
+  className="
+    bg-green-600
+    text-white
+    px-4
+    py-2
+    rounded-lg
+    mt-3
+  "
+>
+  Move to Cart
+</button>
+              <button
+                onClick={() =>
+                  removeFromWishlist(
+                    item.name
+                  )
+                }
+                className="
+                  bg-red-600
+                  text-white
+                  px-4
+                  py-2
+                  rounded-lg
+                  mt-3
+                "
+              >
+                Remove
+              </button>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      )}
+
+    </div>
+
+  );
+
+}
   return (
     <div className="min-h-screen bg-black text-white">
       <header
@@ -1405,10 +1698,39 @@ const handleMpesaPayment =
   "
 >
 
-  <span>🔍</span>
+  <div
+  className="relative cursor-pointer"
+  onClick={() => setPage("wishlist")}
+>
+
+  <Heart size={24} />
+
+  {wishlistItems.length > 0 && (
+
+    <div
+      className="
+        absolute
+        -top-2
+        -right-2
+        bg-pink-600
+        text-white
+        text-xs
+        w-5
+        h-5
+        rounded-full
+        flex
+        items-center
+        justify-center
+      "
+    >
+      {wishlistItems.length}
+    </div>
+
+  )}
+
+</div>
 
 </button>
-          <span>❤</span>
           <div
   className="cursor-pointer"
   onClick={() => setPage("profile")}
@@ -1586,6 +1908,19 @@ const handleMpesaPayment =
 </button>
   </div>
 </section>
+<button
+  onClick={() => setShowQuoteModal(true)}
+  className="
+    px-6
+    py-3
+    rounded-xl
+    bg-blue-600
+    text-white
+    font-semibold
+  "
+>
+  Request Quote
+</button>
 
       <section id="products" className="p-6">
         <h2 className="text-2xl font-bold mb-4">
@@ -1702,21 +2037,19 @@ const handleMpesaPayment =
 
             key={index}
 
-            onClick={() => {
+  onClick={() => {
 
-              setSelectedProduct(
-                product
-              );
+  setSelectedProduct(
+    product.parentProduct
+  );
 
-              setActiveVariant(
-                product.variants?.[0]
-              );
+  setActiveVariant(product);
 
-              setPage("product");
+  setPage("product");
 
-              setSearchQuery("");
+  setSearchTerm("");
 
-            }}
+  }}
 
             className={`
 
@@ -1745,47 +2078,26 @@ const handleMpesaPayment =
             `}
           >
 
-            <img
-              src={
-                product.variants?.[0]
-                  ?.image
-              }
-
-              alt=""
-
-              className="
-                w-16
-                h-16
-
-                object-cover
-
-                rounded-xl
-              "
-            />
+<img
+  src={product.image}
+  alt={product.name}
+  className="
+    w-16
+    h-16
+    object-cover
+    rounded-xl
+  "
+/>
 
             <div>
 
-              <p className="font-bold">
-
-                {
-                  product.variants?.[0]
-                    ?.name
-                }
-
-              </p>
+             <p className="font-bold">
+  {product.name}
+</p>
 
               <p className="text-sm text-zinc-400">
-
-                KES {
-
-                  Number(
-                    product.variants?.[0]
-                      ?.price
-                  ).toLocaleString()
-
-                }
-
-              </p>
+  KES {Number(product.price).toLocaleString()}
+</p>
 
             </div>
 
@@ -1817,10 +2129,16 @@ const handleMpesaPayment =
         ? true
         : product.category === selectedCategory;
 
-    const matchesSearch =
-      product.variants[0].name
-  .toLowerCase()
-  .includes(searchTerm.toLowerCase());
+   const matchesSearch =
+  product.variants.some(variant =>
+
+    variant.name
+      .toLowerCase()
+      .includes(
+        searchTerm.toLowerCase()
+      )
+
+  );
 
     return matchesCategory && matchesSearch;
   })
@@ -1906,7 +2224,23 @@ setPage("product");
 
 </div>
 
-
+<button
+  onClick={() =>
+    addToWishlist(
+      product.variants[0]
+    )
+  }
+  className="
+    w-full
+    bg-pink-600
+    text-white
+    py-3
+    rounded-xl
+    mb-2
+  "
+>
+  ❤️ Add to Wishlist
+</button>
                <button
   className="w-full bg-red-600 py-3 rounded-xl mt-4"
  onClick={() => {
@@ -1942,8 +2276,6 @@ setPage("product");
       category: product.category,
     },
   ]);
-
-  setCartCount(cartCount + 1);
 
 }}
 >
@@ -2190,6 +2522,128 @@ setPage("product");
 
   </div>
     </a>
+    {showQuoteModal && (
+
+  <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+
+    <div className="bg-white rounded-2xl p-6 w-[90%] max-w-lg">
+
+      <h2 className="text-2xl font-bold mb-4">
+        Request a Quote
+      </h2>
+
+      <input
+        type="text"
+        placeholder="Your Name"
+        value={quoteName}
+        onChange={(e) => setQuoteName(e.target.value)}
+        className="w-full
+    border
+    p-3
+    mb-3
+    rounded-lg
+    bg-white
+    text-black
+    placeholder-gray-500"
+      />
+
+      <input
+        type="text"
+        placeholder="Phone Number"
+        value={quotePhone}
+        onChange={(e) => setQuotePhone(e.target.value)}
+        className="w-full
+    border
+    p-3
+    mb-3
+    rounded-lg
+    bg-white
+    text-black
+    placeholder-gray-500"
+      />
+
+      <input
+        type="text"
+        placeholder="Product Type"
+        value={quoteProduct}
+        onChange={(e) => setQuoteProduct(e.target.value)}
+        className="w-full
+    border
+    p-3
+    mb-3
+    rounded-lg
+    bg-white
+    text-black
+    placeholder-gray-500"
+      />
+
+      <input
+        type="number"
+        placeholder="Quantity"
+        value={quoteQuantity}
+        onChange={(e) => setQuoteQuantity(e.target.value)}
+        className="w-full
+    border
+    p-3
+    mb-3
+    rounded-lg
+    bg-white
+    text-black
+    placeholder-gray-500"
+      />
+
+      <input
+        type="date"
+        value={quoteDeadline}
+        onChange={(e) => setQuoteDeadline(e.target.value)}
+        className="w-full
+    border
+    p-3
+    mb-3
+    rounded-lg
+    bg-white
+    text-black
+    placeholder-gray-500"
+      />
+
+      <textarea
+        placeholder="Additional Notes"
+        value={quoteNotes}
+        onChange={(e) => setQuoteNotes(e.target.value)}
+        className="w-full
+    border
+    p-3
+    mb-3
+    rounded-lg
+    bg-white
+    text-black
+    placeholder-gray-500"
+      />
+
+      <div className="flex gap-3">
+
+        <button
+          onClick={() => setShowQuoteModal(false)}
+          className="flex-1 bg-gray-500 text-white py-3 rounded-lg"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={handleQuoteRequest}
+          className="flex-1 bg-green-500 text-white py-3 rounded-lg"
+        >
+          Send Quote Request
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
+
 </div>
   );
 }
