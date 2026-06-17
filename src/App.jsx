@@ -788,10 +788,23 @@ if (page === "profile") {
   <button
   onClick={() => {
 
-    addToWishlist(
-      activeVariant ||
-      selectedProduct.variants[0]
-    );
+    if (!selectedSize) {
+
+      alert(
+        "Please select a size before adding to wishlist."
+      );
+
+      return;
+    }
+
+    addToWishlist({
+
+      ...(activeVariant ||
+          selectedProduct.variants[0]),
+
+      selectedSize,
+
+    });
 
   }}
   className="
@@ -2225,11 +2238,29 @@ setPage("product");
 </div>
 
 <button
-  onClick={() =>
-    addToWishlist(
-      product.variants[0]
-    )
+onClick={() => {
+
+  const chosenSize =
+    selectedSizes[product.id];
+
+  if (!chosenSize) {
+
+    alert(
+      "Please select a size before adding to wishlist."
+    );
+
+    return;
   }
+
+  addToWishlist({
+
+    ...product.variants[0],
+
+    selectedSize: chosenSize,
+
+  });
+
+}}
   className="
     w-full
     bg-pink-600
