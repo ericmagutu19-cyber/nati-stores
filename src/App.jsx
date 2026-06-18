@@ -465,6 +465,7 @@ const [mpesaPhone, setMpesaPhone] =
   minutes: 0,
   seconds: 0,
 })
+
   const resetForms = () => {
 
   setCustomerName("");
@@ -546,6 +547,8 @@ const removeFromWishlist = (productName) => {
     "Review submitted successfully."
   );
 };
+
+}
   const addToRecentlyViewed = (product) => {
 
   const filtered = recentlyViewed.filter(
