@@ -465,6 +465,8 @@ const [mpesaPhone, setMpesaPhone] =
   minutes: 0,
   seconds: 0,
 })
+const [couponCode, setCouponCode] = useState("")
+const [discount, setDiscount] = useState(0)
 
   const resetForms = () => {
 
@@ -547,8 +549,6 @@ const removeFromWishlist = (productName) => {
     "Review submitted successfully."
   );
 };
-
-}
   const addToRecentlyViewed = (product) => {
 
   const filtered = recentlyViewed.filter(
@@ -561,6 +561,33 @@ const removeFromWishlist = (productName) => {
   ].slice(0, 6));
 
   };
+  const applyCoupon = () => {
+
+  const code = couponCode.trim().toUpperCase()
+
+  const coupons = {
+  NATI15: 15,
+  WELCOME10: 10,
+  BOOTS20: 20,
+  TRAINER5: 5,
+}
+
+if (coupons[code]) {
+
+  setDiscount(coupons[code])
+
+  alert(
+    `${coupons[code]}% discount applied!`
+  )
+
+} else {
+
+  setDiscount(0)
+
+  alert("Invalid coupon code")
+
+}
+}
   const subtotal = cartItems.reduce(
   (total, item) =>
     total + (Number(item.price) || 0),
@@ -571,7 +598,11 @@ const deliveryFee = 300;
 
 const totalAmount =
   subtotal + deliveryFee;
+const discountAmount =
+  subtotal * (discount / 100)
 
+const finalTotal =
+  subtotal - discountAmount + deliveryFee
   useEffect(() => {
 
   const timer = setTimeout(() => {
@@ -799,7 +830,7 @@ const filteredProducts =
   <div className="flex justify-between text-xl font-bold">
     <span>Total</span>
     <span>
-      KES {totalAmount.toLocaleString()}
+      KES {finalTotal.toLocaleString()}
     </span>
   </div>
 
@@ -1201,13 +1232,19 @@ ${cartItems
   .join("\n")}
 
 Subtotal:
-KES ${subtotal.toLocaleString()}
+KES ${subtotal}
+
+Discount:
+KES ${discountAmount}
 
 Delivery Fee:
-KES ${deliveryFee.toLocaleString()}
+KES ${deliveryFee}
 
-TOTAL:
-KES ${totalAmount.toLocaleString()}
+Total:
+KES ${finalTotal}
+
+Coupon:
+${couponCode || "None"}
 `;
 const productWhatsappMessage = `
 Hello NATI STORES,
@@ -1396,6 +1433,16 @@ if (page === "checkout") {
         Delivery Fee
       </span>
 
+      <div className="flex justify-between mb-2">
+
+  <span>Discount</span>
+
+  <span className="text-green-500">
+    - KES {discountAmount.toLocaleString()}
+  </span>
+
+</div>
+
       <span>
         KES {deliveryFee.toLocaleString()}
       </span>
@@ -1417,7 +1464,7 @@ if (page === "checkout") {
       <span>Total</span>
 
       <span>
-        KES {totalAmount.toLocaleString()}
+        KES {finalTotal.toLocaleString()}
       </span>
 
     </div>
@@ -1425,7 +1472,43 @@ if (page === "checkout") {
   </div>
 
 </div>
+<div className="mt-6">
 
+  <label className="block mb-2 font-bold">
+    Coupon Code
+  </label>
+
+  <div className="flex gap-2">
+
+    <input
+      type="text"
+      value={couponCode}
+      onChange={(e) =>
+        setCouponCode(e.target.value)
+      }
+      placeholder="Enter Coupon"
+      className="
+        flex-1
+        p-3
+        rounded-xl
+        bg-zinc-800
+      "
+    />
+
+    <button
+      onClick={applyCoupon}
+      className="
+        bg-green-600
+        px-4
+        rounded-xl
+      "
+    >
+      Apply
+    </button>
+
+  </div>
+
+</div>
 <button  
   onClick={() => {
   if (
@@ -1492,6 +1575,9 @@ if (page === "checkout") {
 
   setSelectedSizes({});
 
+  setCouponCode("")
+
+  setDiscount(0)
 }, 300);
 
   }}
@@ -1673,7 +1759,7 @@ const handleMpesaPayment =
 
           body: JSON.stringify({
 
-            amount: totalAmount,
+            amount: finalTotal,
 
             phone: phone,
 
