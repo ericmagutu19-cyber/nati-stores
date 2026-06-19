@@ -467,6 +467,35 @@ const [mpesaPhone, setMpesaPhone] =
 })
 const [couponCode, setCouponCode] = useState("")
 const [discount, setDiscount] = useState(0)
+const [orders, setOrders] = useState(() => {
+
+  const savedOrders =
+    localStorage.getItem("orders")
+
+  return savedOrders
+    ? JSON.parse(savedOrders)
+    : []
+
+    const newOrder = {
+
+  id: Date.now(),
+
+  date: new Date()
+    .toLocaleDateString(),
+
+  items: [...cartItems],
+
+  total: finalTotal,
+
+  status: "Pending"
+
+}
+
+setOrders(prev => [
+  newOrder,
+  ...prev
+])
+})
 
   const resetForms = () => {
 
@@ -644,6 +673,7 @@ useEffect(() => {
   );
 
 }, [recentlyViewed]);
+
 useEffect(() => {
 
   const saleEndDate =
@@ -699,6 +729,14 @@ useEffect(() => {
     clearInterval(timer)
 
   }, [])
+  useEffect(() => {
+
+  localStorage.setItem(
+    "orders",
+    JSON.stringify(orders)
+  )
+
+}, [orders])
 
 const filteredProducts =
   products.flatMap((product) =>
@@ -849,6 +887,184 @@ const filteredProducts =
       </button>
     </div>
   );
+}
+const getOrderStatus = (order) => {
+
+       const hoursPassed =
+
+    (Date.now() -
+      order.createdAt) /
+
+    (1000 * 60 * 60)
+
+  if (hoursPassed < 1)
+    return "Pending"
+
+  if (hoursPassed < 4)
+    return "Processing"
+
+  if (hoursPassed < 12)
+    return "Dispatched"
+
+  if (hoursPassed < 24)
+    return "Out For Delivery"
+
+  return "Delivered"
+
+}
+if (page === "orders") {
+
+  return (
+
+    <div className="min-h-screen bg-black text-white p-6">
+
+      <button
+        onClick={() =>
+          setPage("home")
+        }
+        className="
+          bg-zinc-800
+          px-4
+          py-2
+          rounded-xl
+          mb-6
+        "
+      >
+        ← Back Home
+      </button>
+
+      <h1 className="text-4xl font-bold mb-8">
+        My Orders
+      </h1>
+
+      {orders.length === 0 ? (
+
+        <p>
+          No orders yet.
+        </p>
+
+      ) : (
+
+        <div className="space-y-6">
+
+          {orders.map(order => (
+
+            <div
+              key={order.id}
+              className="
+                bg-zinc-900
+                p-5
+                rounded-2xl
+              "
+            >
+
+              <div className="flex justify-between">
+
+                <h2 className="font-bold">
+                  Order #{order.id}
+                </h2>
+
+               <span
+  className={`
+
+    ${
+      getOrderStatus(order) ===
+      "Delivered"
+
+        ? "text-green-500"
+
+      : getOrderStatus(order) ===
+        "Out For Delivery"
+
+        ? "text-blue-500"
+
+      : getOrderStatus(order) ===
+        "Dispatched"
+
+        ? "text-purple-500"
+
+      : getOrderStatus(order) ===
+        "Processing"
+
+        ? "text-orange-500"
+
+      : "text-yellow-500"
+
+    }
+
+  `}
+>
+
+  {getOrderStatus(order)}
+
+</span>
+<div className="mt-4">
+
+  <div className="w-full h-3 bg-zinc-800 rounded-full">
+
+    <div
+
+      className={`
+
+        h-3
+
+        rounded-full
+
+        ${
+          getOrderStatus(order) ===
+          "Pending"
+
+            ? "w-[20%] bg-yellow-500"
+
+          : getOrderStatus(order) ===
+            "Processing"
+
+            ? "w-[40%] bg-orange-500"
+
+          : getOrderStatus(order) ===
+            "Dispatched"
+
+            ? "w-[60%] bg-purple-500"
+
+          : getOrderStatus(order) ===
+            "Out For Delivery"
+
+            ? "w-[80%] bg-blue-500"
+
+          : "w-full bg-green-500"
+
+        }
+
+      `}
+
+    />
+
+  </div>
+
+</div>
+              </div>
+
+              <p className="text-zinc-400">
+                {order.date}
+              </p>
+
+              <p className="mt-3">
+                Total:
+                KES {order.total}
+              </p>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      )}
+
+    </div>
+
+  )
+
 }
 if (page === "profile") {
   return (
@@ -1564,7 +1780,27 @@ if (page === "checkout") {
 
       "_blank"
     );
+ const newOrder = {
 
+  id: Date.now(),
+
+  date: new Date()
+    .toLocaleDateString(),
+
+  createdAt: Date.now(),
+
+  items: [...cartItems],
+
+  total: finalTotal,
+
+  status: "Pending"
+
+}
+
+setOrders(prev => [
+  newOrder,
+  ...prev
+])
     setTimeout(() => {
 
   resetForms();
@@ -1824,6 +2060,7 @@ Please send me a quotation.`;
     `https://wa.me/254101709129?text=${encodeURIComponent(message)}`,
     "_blank"
   );
+  
   resetForms();
 
   setShowQuoteModal(false);
@@ -2125,7 +2362,6 @@ if (page === "portfolio") {
     transition
   "
 >
-
   <div
   className="relative cursor-pointer"
   onClick={() => setPage("wishlist")}
@@ -2158,6 +2394,13 @@ if (page === "portfolio") {
 
 </div>
 
+</button>
+ <button
+  onClick={() =>
+    setPage("orders")
+  }
+>
+  📦 
 </button>
           <div
   className="cursor-pointer"
@@ -3059,7 +3302,14 @@ onClick={() => {
 >
   📸 Portfolio
 </div>
-        <span>📦</span>
+        <button
+  onClick={() =>
+    setPage("orders")
+  }
+>
+  📦 Orders
+</button>
+
         <div
   className="relative cursor-pointer"
   onClick={() => setPage("cart")}
