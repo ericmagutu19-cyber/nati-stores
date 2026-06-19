@@ -496,6 +496,12 @@ setOrders(prev => [
   ...prev
 ])
 })
+const [expandedOrder, setExpandedOrder] =
+  useState(null)
+  const [isAdmin, setIsAdmin] =
+  useState(false)
+const [expandedAdminOrder, setExpandedAdminOrder] =
+  useState(null)
 
   const resetForms = () => {
 
@@ -912,6 +918,323 @@ const getOrderStatus = (order) => {
   return "Delivered"
 
 }
+if (
+  page === "admin" &&
+  isAdmin
+) {
+
+  return (
+
+    <div className="min-h-screen bg-black text-white p-6">
+
+      <h1 className="text-4xl font-bold mb-8">
+
+        Admin Dashboard
+
+      </h1>
+
+      <button
+        onClick={() =>
+          setPage("home")
+        }
+        className="
+          bg-zinc-800
+          px-4
+          py-2
+          rounded-xl
+          mb-8
+        "
+      >
+        ← Back Home
+      </button>
+
+      <div className="grid md:grid-cols-4 gap-4">
+
+        <div className="bg-zinc-900 p-5 rounded-2xl">
+
+          <h2>Total Orders</h2>
+
+          <p className="text-3xl font-bold">
+            {orders.length}
+          </p>
+
+        </div>
+
+        <div className="bg-zinc-900 p-5 rounded-2xl">
+
+          <h2>Wishlist Items</h2>
+
+          <p className="text-3xl font-bold">
+            {wishlistItems.length}
+          </p>
+
+        </div>
+
+        <div className="bg-zinc-900 p-5 rounded-2xl">
+
+          <h2>Products</h2>
+
+          <p className="text-3xl font-bold">
+            {products.length}
+          </p>
+
+        </div>
+        <div className="mt-10">
+
+  <h2 className="text-2xl font-bold mb-6">
+    Customer Orders
+  </h2>
+
+  <div className="space-y-4">
+
+    {orders.map(order => (
+
+      <div
+        key={order.id}
+        className="
+          bg-zinc-900
+          p-5
+          rounded-2xl
+        "
+      >
+
+        <h3 className="font-bold">
+
+          Order #{order.id}
+
+        </h3>
+
+        <p>
+          Customer:
+          {order.customerName}
+        </p>
+
+        <p>
+          Phone:
+          {order.customerPhone}
+        </p>
+
+        <p>
+          Delivery:
+          {order.deliveryLocation}
+        </p>
+
+        <p>
+          Total:
+          KES {order.total}
+        </p>
+
+        <p>
+          Status:
+          {order.status}
+        </p>
+        <button
+  onClick={() =>
+
+    setExpandedAdminOrder(
+
+      expandedAdminOrder === order.id
+        ? null
+        : order.id
+
+    )
+
+  }
+  className="
+    bg-blue-600
+    px-4
+    py-2
+    rounded-xl
+    mt-3
+  "
+>
+
+  {expandedAdminOrder === order.id
+
+    ? "Hide Details ▲"
+
+    : "View Details ▼"
+
+  }
+
+</button>
+{expandedAdminOrder === order.id && (
+
+  <div className="mt-6 space-y-4">
+
+    <div className="bg-zinc-800 p-4 rounded-xl">
+
+      <h4 className="font-bold mb-2">
+        Customer Information
+      </h4>
+
+      <p>
+        Customer:
+        {order.customerName}
+      </p>
+
+      <p>
+        Phone:
+        {order.customerPhone}
+      </p>
+
+      <p>
+        Delivery:
+        {order.deliveryLocation}
+      </p>
+
+      <p>
+        Date:
+        {order.date}
+      </p>
+
+    </div>
+
+    <div className="bg-zinc-800 p-4 rounded-xl">
+
+      <h4 className="font-bold mb-2">
+        Payment Details
+      </h4>
+
+      <p>
+        Coupon:
+        {order.coupon || "None"}
+      </p>
+
+      <p>
+        Discount:
+        KES {order.discountAmount || 0}
+      </p>
+
+      <p>
+        Total:
+        KES {order.total}
+      </p>
+
+    </div>
+
+    <div className="bg-zinc-800 p-4 rounded-xl">
+
+      <h4 className="font-bold mb-4">
+        Ordered Products
+      </h4>
+
+      {order.items?.map((item, index) => (
+
+        <div
+          key={index}
+          className="
+            flex
+            gap-4
+            mb-4
+          "
+        >
+
+          <img
+            src={item.image}
+            alt={item.name}
+            className="
+              w-20
+              h-20
+              rounded-lg
+              object-cover
+            "
+          />
+
+          <div>
+
+            <p className="font-bold">
+              {item.name}
+            </p>
+
+            <p>
+              Size:
+              {item.selectedSize}
+            </p>
+
+            <p>
+              KES {item.price}
+            </p>
+
+          </div>
+
+        </div>
+
+      ))}
+
+    </div>
+
+  </div>
+
+)}
+        <div className="mt-4">
+
+  <h4 className="font-bold mb-3">
+    Ordered Products
+  </h4>
+
+  {order.items?.map((item, index) => (
+
+    <div
+      key={index}
+      className="
+        flex
+        items-center
+        gap-4
+        bg-zinc-800
+        p-3
+        rounded-xl
+        mb-3
+      "
+    >
+
+      <img
+        src={item.image}
+        alt={item.name}
+        className="
+          w-20
+          h-20
+          object-cover
+          rounded-lg
+        "
+      />
+
+      <div>
+
+        <p className="font-bold">
+          {item.name}
+        </p>
+
+        <p>
+          Size:
+          {item.selectedSize}
+        </p>
+
+        <p>
+          KES {item.price}
+        </p>
+
+      </div>
+
+    </div>
+
+  ))}
+
+</div>
+      </div>
+
+    ))}
+
+  </div>
+
+</div>
+      </div>
+
+    </div>
+
+  )
+
+}
 if (page === "orders") {
 
   return (
@@ -1052,6 +1375,186 @@ if (page === "orders") {
                 Total:
                 KES {order.total}
               </p>
+              <select
+
+  value={order.status}
+
+  onChange={(e) => {
+
+    const updatedOrders =
+
+      orders.map(o =>
+
+        o.id === order.id
+
+          ? {
+              ...o,
+
+              status:
+                e.target.value
+            }
+
+          : o
+
+      )
+
+    setOrders(
+      updatedOrders
+    )
+
+  }}
+
+  className="
+    bg-zinc-800
+    p-2
+    rounded-xl
+    mt-3
+  "
+>
+
+  <option>
+    Pending
+  </option>
+
+  <option>
+    Processing
+  </option>
+
+  <option>
+    Dispatched
+  </option>
+
+  <option>
+    Out For Delivery
+  </option>
+
+  <option>
+    Delivered
+  </option>
+
+</select>
+              <button
+  onClick={() =>
+
+    setExpandedOrder(
+
+      expandedOrder === order.id
+        ? null
+        : order.id
+
+    )
+
+  }
+  className="
+    bg-red-600
+    px-4
+    py-2
+    rounded-xl
+    mt-3
+  "
+>
+
+  {expandedOrder === order.id
+    ? "Hide Details"
+    : "View Details"}
+
+</button>
+{expandedOrder === order.id && (
+
+  <div className="mt-6 space-y-4">
+
+    <div>
+
+      <p>
+        Customer:
+        {order.customerName}
+      </p>
+
+      <p>
+        Phone:
+        {order.customerPhone}
+      </p>
+
+      <p>
+        Delivery:
+        {order.deliveryLocation}
+      </p>
+
+    </div>
+
+    <div>
+
+      <p>
+        Coupon:
+        {order.coupon || "None"}
+      </p>
+
+      <p>
+        Discount:
+        KES {order.discountAmount || 0}
+      </p>
+
+    </div>
+
+    <div>
+
+      <h3 className="font-bold mb-3">
+        Ordered Items
+      </h3>
+
+      {order.items?.map(
+        (item, index) => (
+
+          <div
+            key={index}
+            className="
+              flex
+              gap-4
+              bg-zinc-800
+              p-3
+              rounded-xl
+              mb-3
+            "
+          >
+
+            <img
+              src={item.image}
+              alt={item.name}
+              className="
+                w-20
+                h-20
+                rounded-lg
+                object-cover
+              "
+            />
+
+            <div>
+
+              <p className="font-bold">
+                {item.name}
+              </p>
+
+              <p>
+                Size:
+                {item.selectedSize}
+              </p>
+
+              <p>
+                KES {item.price}
+              </p>
+
+            </div>
+
+          </div>
+
+        )
+      )}
+
+    </div>
+
+  </div>
+
+)}
 
             </div>
 
@@ -1781,20 +2284,24 @@ if (page === "checkout") {
       "_blank"
     );
  const newOrder = {
-
   id: Date.now(),
-
-  date: new Date()
-    .toLocaleDateString(),
-
+  date: new Date().toLocaleDateString(),
   createdAt: Date.now(),
+
+  customerName,
+  customerPhone,
+  deliveryLocation,
 
   items: [...cartItems],
 
+  subtotal,
+  discountAmount,
+  deliveryFee,
   total: finalTotal,
 
-  status: "Pending"
+  coupon: couponCode,
 
+  status: "Pending"
 }
 
 setOrders(prev => [
@@ -2515,6 +3022,36 @@ if (page === "portfolio") {
 
 
 </div>
+<button
+  onClick={() => {
+
+    const password =
+      prompt(
+        "Enter Admin Password"
+      )
+
+    if (
+      password === "nati123"
+    ) {
+
+      setIsAdmin(true)
+
+      setPage("admin")
+
+    }
+
+    else {
+
+      alert(
+        "Invalid password"
+      )
+
+    }
+
+  }}
+>
+  👨‍💼 Admin
+</button>
         </div>
       </header>
       <div
